@@ -14,7 +14,8 @@ describe User do
  it { should respond_to(:email) }
  it { should respond_to(:password_digest) }
  it { should respond_to(:password)}
- it { should respond_to(:password_confirmation)} 
+ it { should respond_to(:password_confirmation)}
+ it { should respond_to(:remember_token) } 
  it { should be_valid }
  it { should respond_to(:authenticate) }
 
@@ -65,40 +66,40 @@ describe User do
     end
   
 
-  describe "when email address is already taken" do
-    before do
-      user_with_same_email = @user.dup
-      user_with_same_email.email = @user.email.upcase
-      user_with_same_email.save
-    end
-
-    it { should_not be_valid }
+ describe "when email address is already taken" do
+  before do
+   user_with_same_email = @user.dup
+   user_with_same_email.email = @user.email.upcase
+   user_with_same_email.save
   end
+
+  it { should_not be_valid }
+ end
  
-  describe "when password is not present" do
-   before do
+ describe "when password is not present" do
+  before do
    @user = User.new(name: "Exampel User", email: "user@example.com",
                    password: "", password_confirmation: "")
   end
-   it { should_not be_valid }
-  end
+  it { should_not be_valid }
+ end
 
-  describe "when password doesn't match confirmation" do
-   before { @user.password_confirmation = "mismatch" }
-   it { should_not be_valid }
-  end
+ describe "when password doesn't match confirmation" do
+  before { @user.password_confirmation = "mismatch" }
+  it { should_not be_valid }
+ end
 
-  describe "with a password that's too short" do
-   before { @user.password = @user.password_confirmation = "a" * 5 }
-   it { should be_invalid }
-  end
+ describe "with a password that's too short" do
+  before { @user.password = @user.password_confirmation = "a" * 5 }
+  it { should be_invalid }
+ end
 
-  describe "return value of authenticate method" do
-   before { @user.save }
-   let(:found_user) { User.find_by(email: @user.email) }
+ describe "return value of authenticate method" do
+  before { @user.save }
+  let(:found_user) { User.find_by(email: @user.email) }
 
   describe "with valid password" do
-   it { should eq found_user.authenticate(@user.password) }
+  it { should eq found_user.authenticate(@user.password) }
   end
 
   describe "with invalid password" do
@@ -107,5 +108,10 @@ describe User do
    it { should_not eq user_for_invalid_password }
    specify { expect(user_for_invalid_password).to be_false }
   end
+ end
+ 
+ describe "remember token" do
+  before { @user.save }
+  its(:remember_token) { should_not be_blank }
  end
 end 
